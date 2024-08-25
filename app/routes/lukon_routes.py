@@ -1,11 +1,14 @@
 # app/routes/lukon_routes.py
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template
 from ..models import Lukon
 
-bp = Blueprint('lukon', __name__, url_prefix='/lukon')
+bp = Blueprint('lukon', __name__)
 
+@bp.route('/', methods=['GET'])
+def welcome():
+    return render_template('welcome.html')
 
-@bp.route('', methods=['POST'])
+@bp.route('/create', methods=['POST'])
 def create_lukon():
     data = request.json
     lukon_id = Lukon.create(data['name'], data['description'], data['problem'],

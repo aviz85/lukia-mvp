@@ -7,7 +7,7 @@ from .routes import lukon_routes
 
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, template_folder='templates')
     CORS(app)
 
     # Register blueprints
@@ -18,3 +18,8 @@ def create_app():
 
 # Make sure to export the create_app function
 __all__ = ['create_app']
+
+# Add this section to run the app
+if __name__ == '__main__':
+    app = create_app()
+    app.run(host='0.0.0.0', port=5001, debug=True)
