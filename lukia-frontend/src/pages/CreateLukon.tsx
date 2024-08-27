@@ -30,18 +30,17 @@ const CreateLukon: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Send data to API
-    const newLukon: Lukon = {
+    const newLukon: Omit<Lukon, 'id'> = {
       name,
       description,
       problem,
       solution,
-      user_id: 'temp-user-id', // יש להחליף זאת במזהה משתמש אמיתי
+      user_id: 'temp-user-id', // Replace this with actual user ID when authentication is implemented
       tags,
       createdAt: new Date()
     };
     console.log('New Lukon:', newLukon);
-    navigate('/');
+    // Call API to create new Lukon
   };
 
   return (

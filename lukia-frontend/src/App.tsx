@@ -1,33 +1,22 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
-import Home from './pages/Home';
-import CreateLukon from './pages/CreateLukon';
-import LukonCanvas from './pages/LukonCanvas';
-import './App.css'; // Add this line
-// Import other pages as needed
+import UniverseVisualization from './components/UniverseVisualization';
+import Home from './pages/Home'; // יש ליצור קומפוננטה זו אם היא לא קיימת
+import './styles/UniverseVisualization.css';
+import './styles/App.css'; // נוסיף סגנונות כלליים לאפליקציה
 
 const App: React.FC = () => {
   return (
     <Router>
-      <div className="app">
-        <header>
-          <h1>Lukia</h1>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/create">Create Lukon</Link>
-            <Link to="/canvas">Lukon Canvas</Link>
-          </nav>
-        </header>
-        <main>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/create" element={<CreateLukon />} />
-            <Route path="/canvas" element={<LukonCanvas />} />
-          </Routes>
-        </main>
-        <footer>
-          <p>&copy; 2023 Lukia. All rights reserved.</p>
-        </footer>
+      <div className="app-container">
+        <nav>
+          <Link to="/">בית</Link>
+          <Link to="/universe">תצוגת יקום</Link>
+        </nav>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/universe" element={<UniverseVisualization />} />
+        </Routes>
       </div>
     </Router>
   );

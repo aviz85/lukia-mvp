@@ -7,11 +7,11 @@ interface Props {
   lukon: Lukon;
 }
 
-const LukonCard: React.FC<Props> = ({ lukon }) => {
+const LukonCard: React.FC<{ lukon: Lukon }> = ({ lukon }) => {
   return (
     <div className={styles.card}>
-      <h2 className={styles.title}>{lukon.name}</h2>
-      <p className={styles.description}>{lukon.description}</p>
+      <h3>{lukon.name}</h3>
+      <p>{lukon.description}</p>
       {lukon.tags && lukon.tags.length > 0 && (
         <div className={styles.tags}>
           {lukon.tags.map((tag: string, index: number) => (
@@ -19,7 +19,6 @@ const LukonCard: React.FC<Props> = ({ lukon }) => {
           ))}
         </div>
       )}
-      <Link to={`/lukon/${lukon.id}`} className={styles.link}>View Details</Link>
     </div>
   );
 };

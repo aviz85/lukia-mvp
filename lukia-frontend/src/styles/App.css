@@ -1,0 +1,22 @@
+.app-container {
+  font-family: 'Heebo', sans-serif;
+}
+
+nav {
+  background-color: #1A1A2E;
+  padding: 1rem;
+  text-align: center;
+}
+
+nav a {
+  color: #E0E0E0;
+  text-decoration: none;
+  margin: 0 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+nav a:hover {
+  background-color: #6C63FF;
+}
