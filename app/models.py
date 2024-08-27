@@ -7,7 +7,7 @@ from .database import conn
 class Lukon:
 
     @staticmethod
-    def create(name, description, problem, solution, user_id):
+    def create(name, description, problem, solution, user_id, tags=None):
         lukon_id = str(uuid.uuid4())
         problem_id = str(uuid.uuid4())
         solution_id = str(uuid.uuid4())
@@ -20,8 +20,17 @@ class Lukon:
         CREATE (u)-[:CREATES]->(l)
         CREATE (l)-[:HAS]->(p)
         CREATE (l)-[:HAS]->(s)
-        RETURN l, p, s
         """
+
+        if tags:
+            query += """
+            WITH l
+            UNWIND $tags AS tag
+            MERGE (t:Tag {name: tag})
+            CREATE (l)-[:TAGGED_WITH]->(t)
+            """
+
+        query += "RETURN l"
 
         parameters = {
             'lukon_id': lukon_id,
@@ -31,7 +40,8 @@ class Lukon:
             'problem_description': problem,
             'solution_id': solution_id,
             'solution_description': solution,
-            'user_id': user_id
+            'user_id': user_id,
+            'tags': tags or []
         }
 
         result = conn.query(query, parameters)
@@ -43,7 +53,8 @@ class Lukon:
         MATCH (l:Lukon {id: $lukon_id})
         OPTIONAL MATCH (l)-[:HAS]->(p:Problem)
         OPTIONAL MATCH (l)-[:HAS]->(s:Solution)
-        RETURN l, collect(p) as problems, collect(s) as solutions
+        OPTIONAL MATCH (l)-[:TAGGED_WITH]->(t:Tag)
+        RETURN l, collect(p) as problems, collect(s) as solutions, collect(t.name) as tags
         """
 
         result = conn.query(query, {'lukon_id': lukon_id})
@@ -57,6 +68,7 @@ class Lukon:
         solutions = [
             solution['description'] for solution in record['solutions']
         ]
+        tags = record['tags']
 
         return {
             "id": lukon_data['id'],
@@ -64,11 +76,12 @@ class Lukon:
             "description": lukon_data['description'],
             "created_at": lukon_data['created_at'],
             "problems": problems,
-            "solutions": solutions
+            "solutions": solutions,
+            "tags": tags
         }
 
     @staticmethod
-    def update(lukon_id, name, description, problem, solution):
+    def update(lukon_id, name, description, problem, solution, tags=None):
         query = """
         MATCH (l:Lukon {id: $lukon_id})
         SET l.name = $name, l.description = $description
@@ -78,15 +91,28 @@ class Lukon:
         WITH l
         OPTIONAL MATCH (l)-[:HAS]->(s:Solution)
         SET s.description = $solution_description
-        RETURN l
+        WITH l
+        OPTIONAL MATCH (l)-[r:TAGGED_WITH]->(t:Tag)
+        DELETE r
+        WITH l
         """
+
+        if tags:
+            query += """
+            UNWIND $tags AS tag
+            MERGE (t:Tag {name: tag})
+            CREATE (l)-[:TAGGED_WITH]->(t)
+            """
+
+        query += "RETURN l"
 
         parameters = {
             'lukon_id': lukon_id,
             'name': name,
             'description': description,
             'problem_description': problem,
-            'solution_description': solution
+            'solution_description': solution,
+            'tags': tags or []
         }
 
         result = conn.query(query, parameters)
@@ -105,19 +131,31 @@ class Lukon:
         return True
 
     @staticmethod
-    def search(keyword):
+    def search(keyword='', tags=None):
         query = """
         MATCH (l:Lukon)
-        WHERE toLower(l.name) CONTAINS toLower($keyword) OR toLower(l.description) CONTAINS toLower($keyword)
-        RETURN l
+        WHERE (toLower(l.name) CONTAINS toLower($keyword) OR toLower(l.description) CONTAINS toLower($keyword))
+        """
+        
+        if tags:
+            query += """
+            AND ALL(tag IN $tags WHERE (l)-[:TAGGED_WITH]->(:Tag {name: tag}))
+            """
+        
+        query += """
+        OPTIONAL MATCH (l)-[:TAGGED_WITH]->(t:Tag)
+        RETURN l, collect(t.name) as tags
         ORDER BY l.created_at DESC
         LIMIT 10
         """
-        results = conn.query(query, {'keyword': keyword})
+        
+        parameters = {'keyword': keyword, 'tags': tags or []}
+        results = conn.query(query, parameters)
         return [{
             "id": record['l']['id'],
             "name": record['l']['name'],
-            "description": record['l']['description']
+            "description": record['l']['description'],
+            "tags": record['tags']
         } for record in results]
 
     @staticmethod
@@ -267,6 +305,16 @@ class Lukon:
             "suggested_problems": record['suggested_problems'],
             "suggested_solutions": record['suggested_solutions']
         }
+
+    @staticmethod
+    def get_all_tags():
+        query = """
+        MATCH (t:Tag)
+        RETURN t.name AS tag
+        ORDER BY t.name
+        """
+        results = conn.query(query)
+        return [record['tag'] for record in results]
 
 
 class User:

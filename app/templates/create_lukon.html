@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create an Awesome Lukon</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            max-width: 600px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #4a4a4a;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-top: 15px;
+            font-weight: 600;
+            color: #4a4a4a;
+        }
+        input, textarea {
+            margin-top: 5px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        input:focus, textarea:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102,126,234,0.2);
+            outline: none;
+        }
+        button {
+            background-color: #667eea;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background-color: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            position: absolute;
+            top: 0;
+            left: 10px;
+            background-color: white;
+            padding: 0 5px;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        .input-group input:focus + label,
+        .input-group textarea:focus + label,
+        .input-group input:not(:placeholder-shown) + label,
+        .input-group textarea:not(:placeholder-shown) + label {
+            top: -10px;
+            font-size: 12px;
+            color: #667eea;
+        }
+        #successMessage {
+            display: none;
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Create an Awesome Lukon</h1>
+        <form id="createLukonForm">
+            <div class="input-group">
+                <input type="text" id="name" name="name" required placeholder=" ">
+                <label for="name">Name</label>
+            </div>
+            
+            <div class="input-group">
+                <textarea id="description" name="description" required placeholder=" "></textarea>
+                <label for="description">Description</label>
+            </div>
+            
+            <div class="input-group">
+                <textarea id="problem" name="problem" required placeholder=" "></textarea>
+                <label for="problem">Problem</label>
+            </div>
+            
+            <div class="input-group">
+                <textarea id="solution" name="solution" required placeholder=" "></textarea>
+                <label for="solution">Solution</label>
+            </div>
+            
+            <button type="submit">Create Lukon</button>
+        </form>
+        <div id="successMessage">Lukon created successfully!</div>
+    </div>
+
+    <script>
+        document.getElementById('createLukonForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('name').value,
+                description: document.getElementById('description').value,
+                problem: document.getElementById('problem').value,
+                solution: document.getElementById('solution').value,
+                user_id: '12345' // Replace with actual user ID or authentication logic
+            };
+
+            fetch('/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('successMessage').style.display = 'block';
+                setTimeout(() => {
+                    window.location.href = '/' + data.lukon_id;
+                }, 2000);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('An error occurred while creating the Lukon.');
+            });
+        });
+    </script>
+</body>
+</html>
