@@ -1,0 +1,230 @@
+<html><head><base href="https://lukia.app/">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lukia - עולם הרעיונות</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap');
+
+    :root {
+        --primary-color: #6C63FF;
+        --secondary-color: #FF6B6B;
+        --background-color: #1A1A2E;
+        --text-color: #E0E0E0;
+    }
+
+    body {
+        font-family: 'Heebo', sans-serif;
+        direction: rtl;
+        background-color: var(--background-color);
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        color: var(--text-color);
+    }
+
+    #universe {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .lukon {
+        position: absolute;
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 30%, var(--primary-color), #4A47B1);
+        box-shadow: 0 0 20px rgba(108, 99, 255, 0.5);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        text-align: center;
+        padding: 10px;
+        box-sizing: border-box;
+        overflow: hidden;
+        font-size: 14px;
+    }
+
+    .lukon:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 30px rgba(108, 99, 255, 0.8);
+    }
+
+    #createLukon {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: var(--secondary-color);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 50px;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    #createLukon:hover {
+        background-color: #FF4F4F;
+        transform: translateX(-50%) translateY(-5px);
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    #lukonDetails {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(26, 26, 46, 0.9);
+        border-radius: 20px;
+        padding: 30px;
+        max-width: 80%;
+        width: 400px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        display: none;
+    }
+
+    #lukonDetails h2 {
+        color: var(--primary-color);
+        margin-top: 0;
+    }
+
+    #lukonDetails p {
+        margin-bottom: 15px;
+    }
+
+    #closeLukonDetails {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        color: var(--text-color);
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+        100% { transform: translateY(0px); }
+    }
+</style>
+</head>
+<body>
+    <div id="universe"></div>
+    <button id="createLukon">צור לוקון חדש</button>
+    <div id="lukonDetails">
+        <button id="closeLukonDetails">&times;</button>
+        <h2 id="lukonName"></h2>
+        <p id="lukonDescription"></p>
+        <p id="problemDescription"></p>
+        <p id="solutionDescription"></p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script>
+        const universe = document.getElementById('universe');
+        const createLukonBtn = document.getElementById('createLukon');
+        const lukonDetails = document.getElementById('lukonDetails');
+        const closeLukonDetails = document.getElementById('closeLukonDetails');
+
+        const lukons = [
+            { name: "חקלאות חכמה", description: "שימוש בטכנולוגיה מתקדמת לייעול החקלאות", problem: "בזבוז משאבים וירידה בתפוקה חקלאית", solution: "מערכות IoT לניטור ובקרה של גידולים" },
+            { name: "למידה היברידית", description: "שילוב למידה מקוונת ופרונטלית", problem: "חוסר גמישות במערכת החינוך", solution: "פלטפורמה המשלבת כלים דיגיטליים עם מפגשים פיזיים" },
+            { name: "אנרגיה מתחדשת", description: "פיתוח מקורות אנרגיה ירוקים", problem: "זיהום אוויר והתחממות גלובלית", solution: "טכנולוגיות חדשניות לניצול אנרגיית השמש והרוח" }
+        ];
+
+        function createLukonElement(lukon) {
+            const lukonEl = document.createElement('div');
+            lukonEl.classList.add('lukon');
+            lukonEl.textContent = lukon.name;
+            lukonEl.style.left = `${Math.random() * (window.innerWidth - 150)}px`;
+            lukonEl.style.top = `${Math.random() * (window.innerHeight - 150)}px`;
+            
+            lukonEl.addEventListener('click', () => showLukonDetails(lukon));
+            
+            universe.appendChild(lukonEl);
+            
+            anime({
+                targets: lukonEl,
+                translateY: ['20px', '-20px'],
+                direction: 'alternate',
+                loop: true,
+                easing: 'easeInOutQuad',
+                duration: 4000 + Math.random() * 2000
+            });
+        }
+
+        function showLukonDetails(lukon) {
+            document.getElementById('lukonName').textContent = lukon.name;
+            document.getElementById('lukonDescription').textContent = lukon.description;
+            document.getElementById('problemDescription').textContent = `בעיה: ${lukon.problem}`;
+            document.getElementById('solutionDescription').textContent = `פתרון: ${lukon.solution}`;
+            lukonDetails.style.display = 'block';
+        }
+
+        closeLukonDetails.addEventListener('click', () => {
+            lukonDetails.style.display = 'none';
+        });
+
+        createLukonBtn.addEventListener('click', () => {
+            const newLukon = {
+                name: prompt("שם הלוקון:"),
+                description: prompt("תיאור הלוקון:"),
+                problem: prompt("תיאור הבעיה:"),
+                solution: prompt("הצעת פתרון:")
+            };
+            lukons.push(newLukon);
+            createLukonElement(newLukon);
+        });
+
+        lukons.forEach(createLukonElement);
+
+        // Collision detection and resolution
+        setInterval(() => {
+            const lukonElements = document.querySelectorAll('.lukon');
+            for (let i = 0; i < lukonElements.length; i++) {
+                for (let j = i + 1; j < lukonElements.length; j++) {
+                    const lukon1 = lukonElements[i];
+                    const lukon2 = lukonElements[j];
+                    const rect1 = lukon1.getBoundingClientRect();
+                    const rect2 = lukon2.getBoundingClientRect();
+                    
+                    if (rect1.left < rect2.right && rect1.right > rect2.left &&
+                        rect1.top < rect2.bottom && rect1.bottom > rect2.top) {
+                        // Collision detected, move them apart
+                        const angle = Math.random() * Math.PI * 2;
+                        const distance = 20;
+                        const dx = Math.cos(angle) * distance;
+                        const dy = Math.sin(angle) * distance;
+                        
+                        anime({
+                            targets: lukon1,
+                            translateX: `+=${dx}px`,
+                            translateY: `+=${dy}px`,
+                            duration: 1000,
+                            easing: 'easeOutElastic(1, .5)'
+                        });
+                        
+                        anime({
+                            targets: lukon2,
+                            translateX: `-=${dx}px`,
+                            translateY: `-=${dy}px`,
+                            duration: 1000,
+                            easing: 'easeOutElastic(1, .5)'
+                        });
+                    }
+                }
+            }
+        }, 1000);
+    </script>
+</body></html>

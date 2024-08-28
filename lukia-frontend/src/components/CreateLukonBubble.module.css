@@ -1,0 +1,130 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.bubble {
+    position: relative;
+    width: 500px;
+    height: 500px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border-radius: 50%; /* Make the bubble circular */
+}
+
+.bubbleBackground {
+    position: absolute;
+    top: -50px;
+    left: -50px;
+    width: calc(100% + 100px);
+    height: calc(100% + 100px);
+    border-radius: 50%;
+    filter: blur(50px);
+    opacity: 0.7;
+}
+
+.content {
+    position: relative;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 50%; /* Make the content area circular */
+    width: 90%;
+    height: 90%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    overflow: hidden; /* Hide overflow content */
+}
+
+.bubble h2 {
+    margin-bottom: 20px;
+    text-align: center;
+    color: #333;
+}
+
+.bubble input {
+    width: 80%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: none;
+    border-bottom: 2px solid #6C63FF;
+    outline: none;
+    font-size: 16px;
+    background-color: transparent;
+}
+
+.nextButton {
+    padding: 10px 20px;
+    background-color: #6C63FF;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.nextButton:hover {
+    background-color: #5A52D5;
+    transform: scale(1.05);
+}
+
+.tagInput {
+    display: flex;
+    width: 80%;
+    margin-bottom: 20px;
+}
+
+.tagInput input {
+    flex-grow: 1;
+    margin-right: 10px;
+    margin-bottom: 0;
+}
+
+.tagInput button {
+    padding: 5px 10px;
+    background-color: #6C63FF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.tagContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 20px;
+    max-width: 80%;
+}
+
+.tag {
+    background-color: #6C63FF;
+    color: white;
+    padding: 5px 10px;
+    margin: 5px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.tag button {
+    background: none;
+    border: none;
+    color: white;
+    margin-left: 5px;
+    cursor: pointer;
+    font-size: 18px;
+}

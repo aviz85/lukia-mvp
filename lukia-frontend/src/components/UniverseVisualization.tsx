@@ -1,28 +1,53 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import anime from 'animejs';
 import { Lukon } from '../types/Lukon';
 import { fetchLukons, createLukon } from '../services/api';
+import CreateLukonBubble from './CreateLukonBubble'; // נייבא את הקומפוננטה החדשה
 
 const UniverseVisualization: React.FC = () => {
     const [lukons, setLukons] = useState<Lukon[]>([]);
+    const [filteredLukons, setFilteredLukons] = useState<Lukon[]>([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
     const universeRef = useRef<HTMLDivElement>(null);
+    const searchBoxRef = useRef<HTMLDivElement>(null);
+    const searchInputRef = useRef<HTMLInputElement>(null);
     const [selectedLukon, setSelectedLukon] = useState<Lukon | null>(null);
+    const [isCreatingLukon, setIsCreatingLukon] = useState(false);
 
     useEffect(() => {
         fetchLukons().then(setLukons);
     }, []);
 
     useEffect(() => {
-        lukons.forEach(createLukonElement);
-    }, [lukons]);
+        if (searchTerm) {
+            fetchLukons(searchTerm).then(setFilteredLukons);
+        } else {
+            setFilteredLukons(lukons);
+        }
+    }, [lukons, searchTerm]);
+
+    useEffect(() => {
+        updateLukonElements();
+    }, [filteredLukons]);
+
+    const updateLukonElements = () => {
+        if (!universeRef.current) return;
+
+        // Remove all existing Lukon elements
+        universeRef.current.innerHTML = '';
+
+        // Create new elements for filtered Lukons
+        filteredLukons.forEach(createLukonElement);
+    };
 
     const createLukonElement = (lukon: Lukon) => {
         if (!universeRef.current) return;
 
         const lukonEl = document.createElement('div');
         lukonEl.classList.add('lukon');
+        lukonEl.setAttribute('data-id', lukon.id);
         lukonEl.textContent = lukon.name;
         lukonEl.style.left = `${Math.random() * (window.innerWidth - 150)}px`;
         lukonEl.style.top = `${Math.random() * (window.innerHeight - 150)}px`;
@@ -42,23 +67,52 @@ const UniverseVisualization: React.FC = () => {
     };
 
     const handleCreateLukon = () => {
-        const tagsInput = prompt("תגיות (מופרדות בפסיקים):") || "";
-        const newLukon: Omit<Lukon, 'id'> = {
-            name: prompt("שם הלוקון:") || "",
-            description: prompt("תיאור הלוקון:") || "",
-            problem: prompt("תיאור הבעיה:") || "",
-            solution: prompt("הצעת פתרון:") || "",
-            user_id: "temp_user_id", // Replace with actual user ID when authentication is implemented
-            tags: tagsInput.split(',').map(tag => tag.trim()), // Convert string to array
-            createdAt: new Date()
-        };
-        createLukon(newLukon).then(response => {
-            setLukons([...lukons, { ...newLukon, id: response.id }]);
+        setIsCreatingLukon(true);
+    };
+
+    const handleLukonCreated = (newLukon: Lukon) => {
+        setLukons([...lukons, newLukon]);
+        setIsCreatingLukon(false);
+        // Optionally, you might want to select the newly created Lukon
+        setSelectedLukon(newLukon);
+    };
+
+    const handleUniverseClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (e.target === universeRef.current) {
+            setIsSearchOpen(true);
+            anime({
+                targets: searchBoxRef.current,
+                scale: [0, 1],
+                opacity: [0, 1],
+                duration: 500,
+                easing: 'easeOutElastic(1, .8)',
+                complete: () => {
+                    searchInputRef.current?.focus();
+                }
+            });
+        }
+    };
+
+    const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const term = e.target.value;
+        setSearchTerm(term);
+    };
+
+    const closeSearch = () => {
+        anime({
+            targets: searchBoxRef.current,
+            scale: 0,
+            opacity: 0,
+            duration: 300,
+            easing: 'easeInOutQuad',
+            complete: () => {
+                setIsSearchOpen(false);
+            }
         });
     };
 
     return (
-        <div className="universe-container" style={{ direction: 'rtl' }}>
+        <div className="universe-container" style={{ direction: 'rtl' }} onClick={handleUniverseClick}>
             <Link to="/" className="back-to-home">חזרה למסך הבית</Link>
             <div id="universe" ref={universeRef}></div>
             <button id="createLukon" onClick={handleCreateLukon}>צור לוקון חדש</button>
@@ -69,7 +123,24 @@ const UniverseVisualization: React.FC = () => {
                     <p>{selectedLukon.description}</p>
                     <p>בעיה: {selectedLukon.problem}</p>
                     <p>פתרון: {selectedLukon.solution}</p>
+                    <p>תגיות: {selectedLukon.tags.join(', ')}</p>
                 </div>
+            )}
+            {isSearchOpen && (
+                <div className="search-overlay" onClick={closeSearch}>
+                    <div className="search-box" ref={searchBoxRef} onClick={(e) => e.stopPropagation()}>
+                        <input
+                            ref={searchInputRef}
+                            type="text"
+                            placeholder="חפש לוקונים..."
+                            value={searchTerm}
+                            onChange={handleSearch}
+                        />
+                    </div>
+                </div>
+            )}
+            {isCreatingLukon && (
+                <CreateLukonBubble onClose={() => setIsCreatingLukon(false)} onLukonCreated={handleLukonCreated} />
             )}
         </div>
     );
