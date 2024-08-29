@@ -38,25 +38,29 @@ def update_lukon(lukon_id):
         return jsonify({"error": "Lukon not found"}), 404
     return jsonify({"message": "Lukon updated successfully"})
 
-@bp.route('/<lukon_id>', methods=['DELETE'])
+@bp.route('/lukons/<lukon_id>', methods=['DELETE'])
 def delete_lukon(lukon_id):
     success = Lukon.delete(lukon_id)
     if not success:
         return jsonify({"error": "Lukon not found"}), 404
-    return jsonify({"message": "Lukon deleted successfully"})
+    return jsonify({"message": "Lukon marked as deleted successfully"}), 200
+
+@bp.route('/lukons/<lukon_id>/restore', methods=['POST'])
+def restore_lukon(lukon_id):
+    success = Lukon.restore(lukon_id)
+    if not success:
+        return jsonify({"error": "Lukon not found or not deleted"}), 404
+    return jsonify({"message": "Lukon restored successfully"}), 200
 
 @bp.route('/search', methods=['GET'])
 def search_lukons():
     try:
         keyword = request.args.get('keyword', '')
         tags = request.args.get('tags', '')
+        include_deleted = request.args.get('include_deleted', 'false').lower() == 'true'
         tags_list = [tag.strip() for tag in tags.split(',')] if tags else []
         
-        print(f"Searching with keyword: {keyword}, tags: {tags_list}")  # Debug log
-        
-        lukons = Lukon.search(keyword, tags_list)
-        
-        print(f"Search results: {lukons}")  # Debug log
+        lukons = Lukon.search(keyword, tags_list, include_deleted)
         
         return jsonify(lukons)
     except Exception as e:

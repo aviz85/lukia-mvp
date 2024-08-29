@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lukon } from '../types/Lukon';
 import styles from './CreateLukon.module.css';
+import { createLukon } from '../services/api';
 
 const CreateLukon: React.FC = () => {
   const [step, setStep] = useState(1);
@@ -28,9 +29,10 @@ const CreateLukon: React.FC = () => {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newLukon: Omit<Lukon, 'id'> = {
+    
+    const newLukon: Omit<Lukon, 'id' | 'is_deleted' | 'deleted_at'> = {
       name,
       description,
       problem,
@@ -39,8 +41,15 @@ const CreateLukon: React.FC = () => {
       tags,
       createdAt: new Date()
     };
-    console.log('New Lukon:', newLukon);
-    // Call API to create new Lukon
+
+    try {
+      const response = await createLukon(newLukon);
+      console.log('Lukon created:', response);
+      // Redirect to the new Lukon's page or show a success message
+    } catch (error) {
+      console.error('Error creating Lukon:', error);
+      // Handle error (e.g., show error message to user)
+    }
   };
 
   return (

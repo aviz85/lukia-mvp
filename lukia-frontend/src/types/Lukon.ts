@@ -4,7 +4,9 @@ export interface Lukon {
   description: string;
   problem: string;
   solution: string;
+  tags: string[];
   user_id: string;
-  tags: string[]; // Change this to an array of strings
-  createdAt?: Date; // Add this optional field
+  is_deleted?: boolean;
+  deleted_at?: string;
+  createdAt?: Date;
 }

@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import anime from 'animejs';
 import { Lukon } from '../types/Lukon';
-import { fetchLukons, createLukon } from '../services/api';
-import CreateLukonBubble from './CreateLukonBubble'; // נייבא את הקומפוננטה החדשה
+import { fetchLukons, createLukon, deleteLukon, restoreLukon } from '../services/api';
+import CreateLukonBubble from './CreateLukonBubble';
+import { FaTrash, FaUndo, FaArchive } from 'react-icons/fa';
+import styles from './UniverseVisualization.module.css';
 
 const UniverseVisualization: React.FC = () => {
     const [lukons, setLukons] = useState<Lukon[]>([]);
@@ -15,9 +17,13 @@ const UniverseVisualization: React.FC = () => {
     const searchInputRef = useRef<HTMLInputElement>(null);
     const [selectedLukon, setSelectedLukon] = useState<Lukon | null>(null);
     const [isCreatingLukon, setIsCreatingLukon] = useState(false);
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [deletedLukons, setDeletedLukons] = useState<Lukon[]>([]);
+    const [showDeletedModal, setShowDeletedModal] = useState(false);
 
     useEffect(() => {
         fetchLukons().then(setLukons);
+        fetchLukons(undefined, undefined, true).then(setDeletedLukons);
     }, []);
 
     useEffect(() => {
@@ -111,37 +117,120 @@ const UniverseVisualization: React.FC = () => {
         });
     };
 
+    const handleDeleteClick = () => {
+        setShowDeleteConfirmation(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (selectedLukon) {
+            try {
+                await deleteLukon(selectedLukon.id);
+                setLukons(lukons.filter(lukon => lukon.id !== selectedLukon.id));
+                setSelectedLukon(null);
+                setShowDeleteConfirmation(false);
+            } catch (error) {
+                console.error('Error deleting lukon:', error);
+                // Optionally, you can add error handling here, such as displaying an error message to the user
+            }
+        }
+    };
+
+    const handleCancelDelete = () => {
+        setShowDeleteConfirmation(false);
+    };
+
+    const handleRestoreLukon = async (lukonId: string) => {
+        try {
+            await restoreLukon(lukonId);
+            setDeletedLukons(deletedLukons.filter(lukon => lukon.id !== lukonId));
+            const restoredLukon = deletedLukons.find(lukon => lukon.id === lukonId);
+            if (restoredLukon) {
+                setLukons([...lukons, restoredLukon]);
+            }
+        } catch (error) {
+            console.error('Error restoring lukon:', error);
+        }
+    };
+
+    const DeletedLukonsModal = () => (
+        <div className={styles.modalOverlay} onClick={() => setShowDeletedModal(false)}>
+            <div className={styles.modal} onClick={e => e.stopPropagation()}>
+                <h2>לוקונים מחוקים</h2>
+                <div className={styles.lukonList}>
+                    {deletedLukons.map(lukon => (
+                        <div key={lukon.id} className={styles.deletedLukon}>
+                            <h3>{lukon.name}</h3>
+                            <p>{lukon.description}</p>
+                            <p>נמחק ב: {lukon.deleted_at ? new Date(lukon.deleted_at).toLocaleString('he-IL') : 'לא ידוע'}</p>
+                            <button onClick={() => handleRestoreLukon(lukon.id)} className={styles.restoreButton}>
+                                <FaUndo /> שחזר
+                            </button>
+                        </div>
+                    ))}
+                </div>
+                <button onClick={() => setShowDeletedModal(false)} className={styles.closeButton}>סגור</button>
+            </div>
+        </div>
+    );
+
     return (
-        <div className="universe-container" style={{ direction: 'rtl' }} onClick={handleUniverseClick}>
-            <Link to="/" className="back-to-home">חזרה למסך הבית</Link>
+        <div className={styles.universeContainer} style={{ direction: 'rtl' }} onClick={handleUniverseClick}>
+            <Link to="/" className={styles.backToHome}>חזרה למסך הבית</Link>
             <div id="universe" ref={universeRef}></div>
             <button id="createLukon" onClick={handleCreateLukon}>צור לוקון חדש</button>
+            <button className={styles.showDeletedButton} onClick={() => setShowDeletedModal(true)}>
+                <FaArchive /> הצג לוקונים מחוקים
+            </button>
             {selectedLukon && (
-                <div id="lukonDetails">
-                    <button onClick={() => setSelectedLukon(null)}>&times;</button>
+                <div className={styles.lukonDetails}>
+                    <button onClick={() => setSelectedLukon(null)} className={styles.closeButton}>&times;</button>
                     <h2>{selectedLukon.name}</h2>
                     <p>{selectedLukon.description}</p>
                     <p>בעיה: {selectedLukon.problem}</p>
                     <p>פתרון: {selectedLukon.solution}</p>
                     <p>תגיות: {selectedLukon.tags.join(', ')}</p>
+                    <button onClick={handleDeleteClick} className={styles.deleteButton}>
+                        <FaTrash /> מחק לוקון
+                    </button>
+                </div>
+            )}
+            {showDeleteConfirmation && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.deleteConfirmation}>
+                        <h3>האם אתה בטוח שברצונך למחוק את הלוקון?</h3>
+                        <p>פעולה זו אינה הפיכה.</p>
+                        <div className={styles.buttonGroup}>
+                            <button onClick={handleConfirmDelete} className={styles.confirmDelete}>
+                                <FaTrash /> כן, מחק
+                            </button>
+                            <button onClick={handleCancelDelete} className={styles.cancelDelete}>
+                                ביטול
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
             {isSearchOpen && (
-                <div className="search-overlay" onClick={closeSearch}>
-                    <div className="search-box" ref={searchBoxRef} onClick={(e) => e.stopPropagation()}>
+                <div className={styles.searchOverlay} onClick={closeSearch}>
+                    <div className={styles.searchBox} ref={searchBoxRef} onClick={(e) => e.stopPropagation()}>
                         <input
                             ref={searchInputRef}
                             type="text"
                             placeholder="חפש לוקונים..."
                             value={searchTerm}
                             onChange={handleSearch}
+                            className={styles.searchInput}
                         />
+                        <button className={styles.searchButton} onClick={() => fetchLukons(searchTerm)}>
+                            חפש
+                        </button>
                     </div>
                 </div>
             )}
             {isCreatingLukon && (
                 <CreateLukonBubble onClose={() => setIsCreatingLukon(false)} onLukonCreated={handleLukonCreated} />
             )}
+            {showDeletedModal && <DeletedLukonsModal />}
         </div>
     );
 };

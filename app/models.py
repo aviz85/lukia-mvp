@@ -122,20 +122,44 @@ class Lukon:
     def delete(lukon_id):
         query = """
         MATCH (l:Lukon {id: $lukon_id})
+        SET l.is_deleted = true, l.deleted_at = datetime()
+        WITH l
         OPTIONAL MATCH (l)-[:HAS]->(p:Problem)
+        SET p.is_deleted = true
+        WITH l
         OPTIONAL MATCH (l)-[:HAS]->(s:Solution)
-        DETACH DELETE l, p, s
+        SET s.is_deleted = true
+        RETURN l
         """
-
-        conn.query(query, {'lukon_id': lukon_id})
-        return True
+        result = conn.query(query, {'lukon_id': lukon_id})
+        return len(result) > 0
 
     @staticmethod
-    def search(keyword='', tags=None):
+    def restore(lukon_id):
+        query = """
+        MATCH (l:Lukon {id: $lukon_id})
+        WHERE l.is_deleted = true
+        REMOVE l.is_deleted, l.deleted_at
+        WITH l
+        OPTIONAL MATCH (l)-[:HAS]->(p:Problem)
+        REMOVE p.is_deleted
+        WITH l
+        OPTIONAL MATCH (l)-[:HAS]->(s:Solution)
+        REMOVE s.is_deleted
+        RETURN l
+        """
+        result = conn.query(query, {'lukon_id': lukon_id})
+        return len(result) > 0
+
+    @staticmethod
+    def search(keyword='', tags=None, include_deleted=False):
         query = """
         MATCH (l:Lukon)
         WHERE (toLower(l.name) CONTAINS toLower($keyword) OR toLower(l.description) CONTAINS toLower($keyword))
         """
+        
+        if not include_deleted:
+            query += "AND (l.is_deleted IS NULL OR l.is_deleted = false) "
         
         if tags:
             query += """
@@ -155,7 +179,8 @@ class Lukon:
             "id": record['l']['id'],
             "name": record['l']['name'],
             "description": record['l']['description'],
-            "tags": record['tags']
+            "tags": record['tags'],
+            "is_deleted": record['l'].get('is_deleted', False)
         } for record in results]
 
     @staticmethod

@@ -62,21 +62,25 @@ const CreateLukonBubble: React.FC<Props> = ({ onClose, onLukonCreated }) => {
     };
 
     const handleSubmit = async () => {
-        const newLukon: Omit<Lukon, 'id'> = {
-            name,
-            description,
-            problem,
-            solution,
-            user_id: 'temp-user-id', // Replace with actual user ID when authentication is implemented
-            tags,
-            createdAt: new Date()
-        };
+        if (name && description && problem && solution) {
+            const newLukon: Omit<Lukon, 'id' | 'is_deleted' | 'deleted_at'> = {
+                name,
+                description,
+                problem,
+                solution,
+                user_id: 'temp-user-id', // Replace with actual user ID when authentication is implemented
+                tags,
+                createdAt: new Date()
+            };
 
-        try {
-            const response = await createLukon(newLukon);
-            onLukonCreated({ ...newLukon, id: response.id });
-        } catch (error) {
-            console.error('Error creating lukon:', error);
+            try {
+                const response = await createLukon(newLukon);
+                onLukonCreated({ ...newLukon, id: response.id });
+                onClose();
+            } catch (error) {
+                console.error('Error creating Lukon:', error);
+                // Handle error (e.g., show error message to user)
+            }
         }
     };
 

@@ -81,6 +81,7 @@
     max-width: 80%;
     width: 400px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    color: var(--text-color);
 }
 
 #lukonDetails h2 {
@@ -92,7 +93,7 @@
     margin-bottom: 15px;
 }
 
-#lukonDetails button {
+.close-button {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -101,6 +102,75 @@
     color: var(--text-color);
     font-size: 24px;
     cursor: pointer;
+}
+
+.delete-button {
+    background-color: #FF4F4F;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-button svg {
+    margin-left: 8px;
+}
+
+.delete-button:hover {
+    background-color: #FF3333;
+}
+
+.delete-confirmation {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(26, 26, 46, 0.95);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    z-index: 1100;
+}
+
+.delete-confirmation p {
+    margin-bottom: 20px;
+    color: var(--text-color);
+}
+
+.confirm-delete, .cancel-delete {
+    padding: 10px 20px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.confirm-delete {
+    background-color: #FF4F4F;
+    color: white;
+}
+
+.confirm-delete:hover {
+    background-color: #FF3333;
+}
+
+.cancel-delete {
+    background-color: #6C63FF;
+    color: white;
+}
+
+.cancel-delete:hover {
+    background-color: #5A52D5;
 }
 
 .back-to-home {
@@ -153,4 +223,20 @@
 
 .search-box input::placeholder {
     color: #aaa;
+}
+
+.delete-button {
+    background-color: #FF4F4F;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
+}
+
+.delete-button:hover {
+    background-color: #FF3333;
 }
