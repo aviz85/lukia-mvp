@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import anime from 'animejs';
+import confetti from 'canvas-confetti';
 import { Lukon } from '../types/Lukon';
 import { fetchLukons, createLukon, deleteLukon, restoreLukon } from '../services/api';
 import CreateLukonBubble from './CreateLukonBubble';
@@ -77,10 +78,16 @@ const UniverseVisualization: React.FC = () => {
     };
 
     const handleLukonCreated = (newLukon: Lukon) => {
-        setLukons([...lukons, newLukon]);
+        console.log('New Lukon received:', newLukon); // הוספת לוג לבדיקה
+        setLukons(prevLukons => [...prevLukons, newLukon]);
         setIsCreatingLukon(false);
-        // Optionally, you might want to select the newly created Lukon
-        setSelectedLukon(newLukon);
+        
+        // הפעלת אנימציית הקונפטי
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+        });
     };
 
     const handleUniverseClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -118,19 +125,24 @@ const UniverseVisualization: React.FC = () => {
     };
 
     const handleDeleteClick = () => {
-        setShowDeleteConfirmation(true);
+        if (selectedLukon && selectedLukon.id) {
+            setShowDeleteConfirmation(true);
+        } else {
+            console.error('Cannot delete Lukon: Invalid ID', selectedLukon);
+            // אפשר להוסיף כאן הודעת שגיאה למשתמש
+        }
     };
 
     const handleConfirmDelete = async () => {
-        if (selectedLukon) {
+        if (selectedLukon && selectedLukon.id) {
             try {
                 await deleteLukon(selectedLukon.id);
-                setLukons(lukons.filter(lukon => lukon.id !== selectedLukon.id));
+                setLukons(prevLukons => prevLukons.filter(lukon => lukon.id !== selectedLukon.id));
                 setSelectedLukon(null);
                 setShowDeleteConfirmation(false);
             } catch (error) {
                 console.error('Error deleting lukon:', error);
-                // Optionally, you can add error handling here, such as displaying an error message to the user
+                // אפשר להוסיף כאן טיפול בשגיאות, כמו הצגת הודעת שגיאה למשתמש
             }
         }
     };
