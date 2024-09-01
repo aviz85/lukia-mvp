@@ -7,6 +7,8 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.0
+      - key: FRONTEND_URL
+        value: https://lukia-frontend-krwj.onrender.com  # Replace with your actual frontend URL
 
   - type: web
     name: lukia-frontend
@@ -17,3 +19,6 @@ services:
       - type: rewrite
         source: /*
         destination: /index.html
+    envVars:
+      - key: REACT_APP_API_BASE_URL
+        value: https://lukia-backend-krwj.onrender.com
