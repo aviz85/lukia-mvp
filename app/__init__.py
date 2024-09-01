@@ -7,7 +7,7 @@ from .db_connection import conn
 from .routes import lukon_routes
 
 
-def create_app():
+def create_app(environ=None, start_response=None):
     app = Flask(__name__, template_folder='templates')
     
     # Get the frontend URL from environment variable, default to localhost if not set
