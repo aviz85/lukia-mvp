@@ -1,7 +1,8 @@
 import axios, { AxiosError } from 'axios';
 import { Lukon } from '../types/Lukon';
 
-const API_BASE_URL = 'http://localhost:5001'; // שים לב שזה http ולא https
+// Use an environment variable for the API base URL
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5001';
 
 export const fetchLukons = async (keyword?: string, tags?: string[], includeDeleted: boolean = false): Promise<Lukon[]> => {
   try {
