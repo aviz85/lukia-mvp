@@ -1,7 +1,8 @@
-from flask import Flask, send_from_directory
-import os
+from flask import Flask, jsonify
+from flask_cors import CORS
 
-app = Flask(__name__, static_folder='static')
+app = Flask(__name__)
+CORS(app)
 
 # Serve React App
 @app.route('/', defaults={'path': ''})
@@ -14,9 +15,9 @@ def serve(path):
 
 # Add your API routes here
 # For example:
-# @app.route('/api/example', methods=['GET'])
-# def example_route():
-#     return {"message": "This is an example API route"}
+@app.route('/api/example', methods=['GET'])
+def example_route():
+    return jsonify({"message": "This is an example API route"})
 
 if __name__ == '__main__':
-    app.run(use_reloader=True, port=5000, threaded=True)
+    app.run(host='0.0.0.0', port=5000)

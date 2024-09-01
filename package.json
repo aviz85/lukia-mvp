@@ -2,7 +2,6 @@
   "name": "lukia-frontend",
   "version": "0.1.0",
   "private": true,
-  "main": "src/index.tsx",
   "dependencies": {
     "@types/animejs": "^3.1.12",
     "@types/node": "^16.18.0",
@@ -44,8 +43,7 @@
     ]
   },
   "devDependencies": {
-    "@types/canvas-confetti": "^1.6.4",
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
+    "@types/canvas-confetti": "^1.6.4"
   },
   "proxy": "http://localhost:5000"
 }
