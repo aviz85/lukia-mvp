@@ -7,6 +7,8 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.0
+    # Add this line if your app.py is in an 'app' subdirectory
+    # startCommand: gunicorn app.app:app
 
   - type: web
     name: lukia-frontend
