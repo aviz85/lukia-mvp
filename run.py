@@ -1,5 +1,3 @@
-# run.py
-
 from app import create_app
 from init_db import init_db
 import sys
