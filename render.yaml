@@ -3,12 +3,10 @@ services:
     name: lukia-backend
     env: python
     buildCommand: ./build.sh
-    startCommand: gunicorn app:app
+    startCommand: gunicorn app:create_app
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.0
-    # Add this line if your app.py is in an 'app' subdirectory
-    # startCommand: gunicorn app.app:app
 
   - type: web
     name: lukia-frontend
